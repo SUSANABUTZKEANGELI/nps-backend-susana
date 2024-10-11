@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nps-backend-susana", "nps-backend-susana\nps-backend-susana.csproj", "{8FECD5F4-1AF7-4E4C-BB38-9ECFAF9C579D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nps-backend-susana-tests", "nps-backend-susana-tests\nps-backend-susana-tests.csproj", "{FD0BF69A-F9B3-4604-AAEB-4FF8E10184F2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8FECD5F4-1AF7-4E4C-BB38-9ECFAF9C579D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FECD5F4-1AF7-4E4C-BB38-9ECFAF9C579D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FECD5F4-1AF7-4E4C-BB38-9ECFAF9C579D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FECD5F4-1AF7-4E4C-BB38-9ECFAF9C579D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD0BF69A-F9B3-4604-AAEB-4FF8E10184F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD0BF69A-F9B3-4604-AAEB-4FF8E10184F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD0BF69A-F9B3-4604-AAEB-4FF8E10184F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD0BF69A-F9B3-4604-AAEB-4FF8E10184F2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4AE83F26-F496-4D02-A996-240E7B2E8061}
+	EndGlobalSection
+EndGlobal
