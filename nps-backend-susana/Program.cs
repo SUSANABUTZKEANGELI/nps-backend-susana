@@ -29,7 +29,7 @@ namespace nps_backend_susana
 
             builder.Services.AddControllers();
 
-            builder.Services.AddScoped<NpsLogService>();
+            builder.Services.AddScoped<INpsLogService, NpsLogService>();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -47,7 +47,7 @@ namespace nps_backend_susana
             app.UseAuthorization();
 
             app.UseRouting();
-            app.UseCors("AllowAllOrigins"); // Habilita o CORS para permitir requisições do React
+            app.UseCors("AllowAllOrigins"); 
 
             app.MapControllers();
 

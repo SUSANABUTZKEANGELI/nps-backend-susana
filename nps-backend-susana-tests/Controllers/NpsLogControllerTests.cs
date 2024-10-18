@@ -1,44 +1,74 @@
-﻿using Moq;
+﻿using Microsoft.AspNetCore.Mvc;
 using nps_backend_susana.Controllers;
-using nps_backend_susana.Services;
-using System.Net;
+using nps_backend_susana.Model.Dtos;
+using nps_backend_susana.Model.Interfaces;
+using NSubstitute;
 
-namespace nps_backend_susana_tests.Controllers
+namespace nps_backend_susana_tests.Repositories
 {
-    public class UnitTest1
+    public class NpsLogControllerTests 
     {
-        private readonly Mock<INpsLogService> _mockService;  
-        private readonly NpsLogController _controller;
-
-        public NpsLogControllerTests()
+        [Fact]
+        public async Task Shoul_insert_score_log()
         {
-            _mockService = new Mock<INpsLogService>();
-            _controller = new NpsLogController(_mockService.Object);  // Injeta o mock
+            var iLogService = Substitute.For<INpsLogService>();
+
+            var controller = new NpsLogController(iLogService);
+            var scoreDto = new ScoreDto{
+                Score = 10, 
+                Description = "dez",
+                Category = 0};
+
+            iLogService.SalvarResposta(scoreDto).Returns(true);
+            var result = await controller.SalvarResposta(scoreDto);
+
+            var okResult = result as OkObjectResult;
+            
+            Assert.Equal("Nota e log salvos com sucesso.", okResult.Value);
         }
 
         [Fact]
-        public void Must_return_a_question()
+        public async Task Shoul_not_insert_score_log_with_invalid_category()
         {
-            // Arrange
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            var expectedResponse = "Esta é a pergunta de exemplo.";
+            var iLogService = Substitute.For<INpsLogService>();
 
-            mockHttpMessageHandler
-                .Setup(handler => handler.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(expectedResponse)
-                });
+            var controller = new NpsLogController(iLogService);
+            var scoreDto = new ScoreDto
+            {
+                Score = 6,
+                Description = "seis",
+                Category = 0
+            };
 
-            var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
-            var service = new NpsLogService(mockHttpClient); // Classe contendo o método BuscarPergunta()
+            iLogService.SalvarResposta(scoreDto).Returns(true);
 
-            // Act
-            var result = service.BuscarPergunta();
+            var result = await controller.SalvarResposta(scoreDto);
 
-            // Assert
-            Assert.Equal(expectedResponse, result);
+            var badRequestObjectResult = result as BadRequestObjectResult;
+
+            Assert.Equal("Categoria inválida", badRequestObjectResult.Value);
+        }
+
+        [Fact]
+        public async Task Shoul_not_insert_score_log_with_error()
+        {
+            var iLogService = Substitute.For<INpsLogService>();
+
+            var controller = new NpsLogController(iLogService);
+            var scoreDto = new ScoreDto
+            {
+                Score = 6,
+                Description = "seis",
+                Category = 1
+            };
+
+            iLogService.SalvarResposta(scoreDto).Returns(false);
+
+            var result = await controller.SalvarResposta(scoreDto);
+
+            var objectResult = result as ObjectResult;
+
+            Assert.Equal("Erro ao salvar a nota.", objectResult.Value);
         }
     }
 }

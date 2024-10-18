@@ -1,36 +1,51 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using nps_backend_susana.Controllers;
+﻿using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using nps_backend_susana.Model.Entities;
+using nps_backend_susana.Model.Interfaces;
+using nps_backend_susana.Model.Repositories;
 using nps_backend_susana.Services;
-using System.ComponentModel.DataAnnotations;
+using NSubstitute;
 
 namespace nps_backend_susana_tests.Repositories
 {
     public class NpsLogRepositoryTests
     {
-        private readonly NpsLogController _controller;
-        private readonly NpsLogService _npsLogService;
-        private readonly IMediator _mediator;
-        private readonly Fixture _fixture;
+        private readonly INpsLogRepository _repository;
+        private readonly Contexto _contexto;
+        private readonly HttpClient _httpClient;
 
         public NpsLogRepositoryTests()
         {
-            _mediator = Substitute.For<IMediator>();
-            _controller = new NpsLogController(_npsLogService);
+            _contexto = Substitute.For<Contexto>();
+            _repository = new NpsLogRepository(_contexto);
+            _httpClient = new HttpClient();
         }
 
         [Fact]
         public async Task Shoul_insert_score_log()
         {
-            var request = _fixture.Create<CreatePaymentMethodRequest>();
+            var npsLog = new NpsLog()
+            {
+                Score = 10,
+                ReasonDescription = "dez",
+                CategoryId = Guid.NewGuid(),
+                DateScore = DateTime.UtcNow,
+                Id = 1,
+                IdProduct = Guid.NewGuid(),
+                UserId = "teste"
+            };
 
-            _mediator
-            .Send(Arg.Any<CreatePaymentMethodRequest>())
-               .Returns(new CreatePaymentMethodResult(true, new ValidationResult()));
+            var options = new DbContextOptionsBuilder<Contexto>()
+                .UseInMemoryDatabase(databaseName: "Teste")
+                .Options;
 
-            var result = await _controller.Create(request);
+            using var context = new Contexto(options);
+            var repository = new NpsLogRepository(context);
 
-            Assert.IsType<OkObjectResult>(result);
+            await repository.IncluirAsync(npsLog);
+
+            var result = await context.NpsLog.FirstOrDefaultAsync(l => l.Id == npsLog.Id);
+            result.ReasonDescription.Should().Be("Dez");
         }
     }
 }

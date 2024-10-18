@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using nps_backend_susana.Model.Dtos;
+using nps_backend_susana.Model.Interfaces;
 using nps_backend_susana.Services;
 
 namespace nps_backend_susana.Controllers
@@ -8,9 +9,9 @@ namespace nps_backend_susana.Controllers
     [ApiController]
     public class NpsLogController : ControllerBase
     {
-        private readonly NpsLogService _logService;
+        private readonly INpsLogService _logService;
 
-        public NpsLogController(NpsLogService logService)
+        public NpsLogController(INpsLogService logService)
         {
             _logService = logService;
         }
@@ -32,9 +33,9 @@ namespace nps_backend_susana.Controllers
             }
 
             if (scoreDto.Score <= 6 && 
-               (scoreDto.Category == null || scoreDto.Category == ""))
+               (scoreDto.Category == null || scoreDto.Category == 0 || scoreDto.Category > 6))
             {
-                return BadRequest("Categoria obrigatória");
+                return BadRequest("Categoria inválida");
             }
 
             try

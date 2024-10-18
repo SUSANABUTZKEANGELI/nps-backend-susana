@@ -12,10 +12,18 @@ namespace nps_backend_susana.Model.Repositories
             _contexto = contexto;
         }
 
-        public async Task IncluirAsync(NpsLog entity)
+        public async Task<NpsLog> IncluirAsync(NpsLog entity)
         {
-            await _contexto.NpsLog.AddAsync(entity);
-            await _contexto.SaveChangesAsync();
+            try
+            {
+                await _contexto.NpsLog.AddAsync(entity);
+                await _contexto.SaveChangesAsync();
+                return entity;
+            }
+            catch (Exception)
+            {
+                return new NpsLog();
+            }
         }
     }
 }
