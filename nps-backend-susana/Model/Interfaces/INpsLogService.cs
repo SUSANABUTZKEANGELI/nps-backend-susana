@@ -1,12 +1,13 @@
 ﻿using nps_backend_susana.Model.Dtos;
+using nps_backend_susana.Model.Responses;
 
 namespace nps_backend_susana.Model.Interfaces
 
 {
     public interface INpsLogService
     {
-        Task<string> BuscarPergunta();
+        Task<NpsResponse> BuscarPergunta(string login);
 
-        Task<bool> SalvarResposta(ScoreDto scoreDto);
+        Task<NpsResponse> SalvarResposta(ScoreDto scoreDto);
     }
 }

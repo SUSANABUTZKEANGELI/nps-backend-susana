@@ -2,6 +2,7 @@
 using nps_backend_susana.Controllers;
 using nps_backend_susana.Model.Dtos;
 using nps_backend_susana.Model.Interfaces;
+using nps_backend_susana.Model.Responses;
 using NSubstitute;
 
 namespace nps_backend_susana_tests.Repositories
@@ -15,11 +16,14 @@ namespace nps_backend_susana_tests.Repositories
 
             var controller = new NpsLogController(iLogService);
             var scoreDto = new ScoreDto{
+                Login = "teste",
                 Score = 10, 
                 Description = "dez",
-                Category = 0};
+                CategoryId = 0};
 
-            iLogService.SalvarResposta(scoreDto).Returns(true);
+            var response = new NpsResponse();
+
+            iLogService.SalvarResposta(scoreDto).Returns(response);
             var result = await controller.SalvarResposta(scoreDto);
 
             var okResult = result as OkObjectResult;
@@ -35,12 +39,15 @@ namespace nps_backend_susana_tests.Repositories
             var controller = new NpsLogController(iLogService);
             var scoreDto = new ScoreDto
             {
+                Login = "teste",
                 Score = 6,
                 Description = "seis",
-                Category = 0
+                CategoryId = 0
             };
 
-            iLogService.SalvarResposta(scoreDto).Returns(true);
+            var response = new NpsResponse();
+
+            iLogService.SalvarResposta(scoreDto).Returns(response);
 
             var result = await controller.SalvarResposta(scoreDto);
 
@@ -57,12 +64,15 @@ namespace nps_backend_susana_tests.Repositories
             var controller = new NpsLogController(iLogService);
             var scoreDto = new ScoreDto
             {
+                Login = "teste",
                 Score = 6,
                 Description = "seis",
-                Category = 1
+                CategoryId = 1
             };
 
-            iLogService.SalvarResposta(scoreDto).Returns(false);
+            var response = new NpsResponse();
+
+            iLogService.SalvarResposta(scoreDto).Returns(response);
 
             var result = await controller.SalvarResposta(scoreDto);
 

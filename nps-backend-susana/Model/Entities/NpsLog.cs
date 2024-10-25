@@ -10,15 +10,5 @@
         public Guid? CategoryId { get; set; }
         public string UserId { get; set; }
 
-        public NpsLog()
-        {
-            Id = 1;
-            DateScore = DateTimeOffset.Now;
-            IdProduct = Guid.Empty;
-            Score = 0;
-            ReasonDescription = "";
-            CategoryId = Guid.Empty;
-            UserId = "";
-        }
     }
 }

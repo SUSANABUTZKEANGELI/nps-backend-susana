@@ -45,7 +45,7 @@ namespace nps_backend_susana_tests.Repositories
             await repository.IncluirAsync(npsLog);
 
             var result = await context.NpsLog.FirstOrDefaultAsync(l => l.Id == npsLog.Id);
-            result.ReasonDescription.Should().Be("Dez");
+            result.ReasonDescription.Should().Be("dez");
         }
     }
 }

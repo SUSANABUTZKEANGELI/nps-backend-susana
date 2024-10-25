@@ -2,6 +2,7 @@
 using nps_backend_susana.Model.Entities;
 using nps_backend_susana.Model.Enums;
 using nps_backend_susana.Model.Interfaces;
+using nps_backend_susana.Model.Responses;
 using System.Net;
 
 namespace nps_backend_susana.Services
@@ -11,7 +12,6 @@ namespace nps_backend_susana.Services
         private readonly INpsLogRepository _npsLogRepository;
         private readonly HttpClient _httpClient;
         private const string systemId = "3c477fc7-0d4d-458a-6078-08dc43a0a620";
-        private const string user = "susana.angeli.d";
         private const string urlQuestion = "https://nps-stg.ambevdevs.com.br/api/question/check";
         private const string urlCreate = "https://nps-stg.ambevdevs.com.br/api/survey/create";
 
@@ -21,9 +21,18 @@ namespace nps_backend_susana.Services
             _httpClient = httpClient;
         }
 
-        public async Task<string> BuscarPergunta()
+        public async Task<NpsResponse> BuscarPergunta(string login)
         {
-            var url = $"{urlQuestion}?user={user}&systemId={systemId}";
+            if (string.IsNullOrEmpty(login))
+            {
+                return new NpsResponse
+                {
+                    Success = false,
+                    Message = "Invalid Login!"
+                };
+            }
+
+            var url = $"{urlQuestion}?user={login}&systemId={systemId}";
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("Authorization", systemId); 
@@ -33,61 +42,66 @@ namespace nps_backend_susana.Services
                 var response = await _httpClient.SendAsync(request); 
                 if (response.StatusCode == HttpStatusCode.NoContent)
                 {
-                    return "Você já respondeu a pesquisa!";
+                    return new NpsResponse
+                    {
+                        Success = false,
+                        Message = "You´ve already answered the review!"
+                    };
                 }
                 else
                 {
                     response.EnsureSuccessStatusCode();  
-                    return await response.Content.ReadAsStringAsync();
+                    var message = await response.Content.ReadAsStringAsync();
+                    return new NpsResponse
+                    {
+                        Success = true,
+                        Message = message
+                    };
                 }
             }
             catch (HttpRequestException)
             {
-                return "Erro ao buscar pergunta!";
+                return new NpsResponse
+                {
+                    Success = false,
+                    Message = "An error occurred while finding your question"
+                };
             }
         }
 
-        public async Task<bool> SalvarResposta(ScoreDto scoreDto)
+        public async Task<NpsResponse> SalvarResposta(ScoreDto scoreDto)
         {
-            Guid categoryId;
-
-            Category category = (Category)Enum.ToObject(typeof(Category), scoreDto.Category);
-            var categoryIdx = Model.Extensions.EnumExtensions.GetTranslation(category);
-
-            switch (scoreDto.Category)
+            if (scoreDto == null)
             {
-                case 0:
-                    categoryId = Guid.Parse("8656aec6-9f0f-41e1-a94c-49e2d49a5492");
-                    break;
-                case 1:
-                    categoryId = Guid.Parse("e0001d6c-905e-42a0-8f2c-89184a6225da");
-                    break;
-                case 2:
-                    categoryId = Guid.Parse("ab7e4d23-ce17-4049-9856-9f1cea110a7e");
-                    break;
-                case 3:
-                    categoryId = Guid.Parse("438109f9-c8bf-43b1-94a0-a186b758b1e1");
-                    break;
-                case 4:
-                    categoryId = Guid.Parse("883fdf80-70a2-4e36-bf0a-a291c1174cba");
-                    break;
-                case 5:
-                    categoryId = Guid.Parse("25301326-f806-42e7-9fd9-4ea1e0ddf396");
-                    break;
-                default:
-                    categoryId = Guid.Empty;
-                    break;
+                return new NpsResponse
+                {
+                    Success = false,
+                    Message = "Invalid score!"
+                };
             }
+            
+            if (scoreDto.Score <= 6 &&
+               (scoreDto.CategoryId == null || scoreDto.CategoryId == 0 || scoreDto.CategoryId > 6))
+            {
+                return new NpsResponse
+                {
+                    Success = false,
+                    Message = "Invalid category!"
+                };
+            }
+
+            Category category = (Category)Enum.ToObject(typeof(Category), scoreDto.CategoryId);
+            var categoryId = Guid.Parse(Model.Extensions.EnumExtensions.GetTranslation(category));
 
             var postData = new
             {
                 createdDate = DateTime.UtcNow,
-                scoreDto.Score,
+                score = scoreDto.Score,
                 comments = scoreDto.Description,
-                user,
+                user = scoreDto.Login,
                 surveyType = 0,
-                systemId,
-                categoryId
+                systemId = systemId,
+                categoryId = categoryId
             };
 
             var request = new HttpRequestMessage(HttpMethod.Post, urlCreate)
@@ -100,7 +114,11 @@ namespace nps_backend_susana.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                return false;
+                return new NpsResponse
+                {
+                    Success = false,
+                    Message = "An error occurred while submitting your review!"
+                };
             }
 
             var npsLog = new NpsLog()
@@ -110,12 +128,16 @@ namespace nps_backend_susana.Services
                 CategoryId = categoryId,
                 ReasonDescription = scoreDto.Description,
                 Score = scoreDto.Score,
-                UserId = user
+                UserId = scoreDto.Login
             };
 
             await _npsLogRepository.IncluirAsync(npsLog);
 
-            return true;
+            return new NpsResponse
+            {
+                Success = true,
+                Message = "Thank you for your participation!"
+            };
         }
     }
 }

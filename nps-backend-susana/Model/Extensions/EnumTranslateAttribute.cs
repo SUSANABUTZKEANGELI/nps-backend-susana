@@ -3,7 +3,7 @@
 [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
 sealed class EnumTranslateAttribute : Attribute
 {
-    public string Translation { get; }
+    public String Translation { get; }
     
     public EnumTranslateAttribute(string translation)
     {

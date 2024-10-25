@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using nps_backend_susana.Model.Dtos;
 using nps_backend_susana.Model.Interfaces;
-using nps_backend_susana.Services;
 
 namespace nps_backend_susana.Controllers
 {
@@ -17,9 +16,9 @@ namespace nps_backend_susana.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> BuscarPergunta()
+        public async Task<IActionResult> BuscarPergunta([FromQuery] string login)
         {
-            var result = await _logService.BuscarPergunta();
+            var result = await _logService.BuscarPergunta(login);
 
             return Ok(result);
         }
@@ -27,32 +26,8 @@ namespace nps_backend_susana.Controllers
         [HttpPost]
         public async Task<IActionResult> SalvarResposta([FromBody] ScoreDto scoreDto)
         {
-            if (scoreDto == null)
-            {
-                return BadRequest("Nota inválida. Tente de novo");
-            }
-
-            if (scoreDto.Score <= 6 && 
-               (scoreDto.Category == null || scoreDto.Category == 0 || scoreDto.Category > 6))
-            {
-                return BadRequest("Categoria inválida");
-            }
-
-            try
-            {
-                var result = await _logService.SalvarResposta(scoreDto);
-                if (result)
-                {
-                    return Ok("Nota e log salvos com sucesso.");
-                }
-
-                return StatusCode(500, "Erro ao salvar a nota.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
+            var result = await _logService.SalvarResposta(scoreDto);
+            return Ok(result);
         }
     }
 }
